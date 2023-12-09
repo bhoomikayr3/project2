@@ -1,0 +1,117 @@
+package swingdemo;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class tym extends JFrame {
+    private JTextArea sentenceArea;
+    private JTextField userInputField;
+    private JButton startButton;
+    private JLabel accuracyLabel;
+    private JLabel wpmLabel;
+    private JLabel cpmLabel;
+
+    private String sentence = "The quick brown fox jumps over the lazy dog.";
+    private long startTime;
+
+    public tym() {
+    	
+    	setTitle("Typing Speed Calculator");
+        setSize(600, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        setBackground(Color.RED);
+
+    
+        sentenceArea = new JTextArea(sentence);
+        sentenceArea.setEditable(false);
+        sentenceArea.setFont(new Font("Arial", Font.PLAIN, 16));        
+        add(sentenceArea, BorderLayout.CENTER);
+        sentenceArea.setBackground(Color.PINK );
+        
+        userInputField = new JTextField();
+        userInputField.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(userInputField, BorderLayout.SOUTH);
+
+        startButton = new JButton("Start");
+        startButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        add(startButton, BorderLayout.EAST);
+        startButton.setBackground(Color.BLUE );
+        startButton.addActionListener(new ActionListener() {
+        
+        
+            public void actionPerformed(ActionEvent e) {
+                startTyping();
+            }
+        });
+
+        JPanel resultPanel = new JPanel(new GridLayout(3, 1));
+        accuracyLabel = new JLabel("Accuracy: ");
+        wpmLabel = new JLabel("WPM: ");
+        cpmLabel = new JLabel("CPM: ");
+        resultPanel.add(accuracyLabel);
+        resultPanel.add(wpmLabel);
+        resultPanel.add(cpmLabel);
+        add(resultPanel, BorderLayout.WEST);
+        resultPanel.setBackground(Color.YELLOW);
+
+        setLocationRelativeTo(null);
+    }
+
+    private void startTyping() {
+        startTime = System.currentTimeMillis();
+        userInputField.setEditable(true);
+        userInputField.setText("");
+        userInputField.requestFocus();
+        startButton.setEnabled(false);
+
+        userInputField.addActionListener(new ActionListener() {
+            
+            public void actionPerformed(ActionEvent e) {
+                endTyping();
+            }
+        });
+    }
+
+    private void endTyping() {
+        long endTime = System.currentTimeMillis();
+        userInputField.setEditable(false);
+        startButton.setEnabled(true);
+
+        String userInput = userInputField.getText();
+        int correctCharacters = calculateCorrectCharacters(userInput);
+        int totalCharacters = sentence.length();
+        int totalWords = sentence.split("\\s+").length;
+        long totalTime = endTime - startTime;
+
+        double accuracy = (double) correctCharacters / totalCharacters * 100;
+        int wpm = (int) ((totalWords / (double) totalTime) * 60000);
+        int cpm = (int) ((totalCharacters / (double) totalTime) * 60000);
+
+        accuracyLabel.setText("Accuracy: " + String.format("%.2f", accuracy) + "%");
+        wpmLabel.setText("WPM: " + wpm);
+        cpmLabel.setText("CPM: " + cpm);
+    }
+
+    private int calculateCorrectCharacters(String userInput) {
+        int correctCharacters = 0;
+
+        for (int i = 0; i < Math.min(sentence.length(), userInput.length()); i++) {
+            if (sentence.charAt(i) == userInput.charAt(i)) {
+                correctCharacters++;
+            }
+        }
+
+        return correctCharacters;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            
+            public void run() {
+                new tym().setVisible(true);
+            }
+        });
+}
+}
